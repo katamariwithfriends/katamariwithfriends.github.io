@@ -100,8 +100,12 @@
             this.initEvents();
 
             // Begin rendering
-            requestAnimationFrame(this.render.bind(this));
-            this.scene.simulate();            
+            var self = this;
+            setTimeout(function() {
+                requestAnimationFrame(self.render.bind(self));
+                self.scene.simulate(); 
+            }, 100);
+                       
     };
 
     Game.prototype.initGround = function() {
@@ -133,7 +137,8 @@
                 0 //mass, makes object immovable
             );
             this.ground.recieveShadow = true;
-            this.scene.add( this.ground ); 
+            this.scene.add( this.ground );
+            this.ground.type = 'GROUND'; 
     };
 
     Game.prototype.initWall = function(xWidth, zWidth, xOff, zOff, i, wall_material) {
@@ -151,26 +156,62 @@
     }
 
     Game.prototype.initKatamari = function() {
-            var geometry = new THREE.SphereGeometry( 5, 8, 8 );
-            var self = this;
-            console.log(this.user_id);
-            getProPic(this.user_id, function(url) {
-                    var katamari_material  = Physijs.createMaterial(
-                        new THREE.MeshLambertMaterial({map: self.texture_loader.load(url)}),
-                        .8, //high friction
-                        .3 //low resolution
-                    );
-                    self.katamari = new Physijs.SphereMesh( geometry, katamari_material );
-                    self.katamari.position.set(
-                        0, // y
-                        20, // z
-                        0 // x
-                    );
-                    self.scene.add( self.katamari );
-                },
-                function(error) {
-                  console.log(error);
-                });          
+        var geometry = new THREE.SphereGeometry( 5, 8, 8 );
+        var self = this;
+        console.log(this.user_id);
+        getProPic(this.user_id, function(url) {
+                var katamari_material  = Physijs.createMaterial(
+                    new THREE.MeshLambertMaterial({map: self.texture_loader.load(url)}),
+                    .8, //high friction
+                    .3 //low resolution
+                );
+                self.katamari = new Physijs.SphereMesh( geometry, katamari_material );
+                self.katamari.position.set(
+                    0, // y
+                    20, // z
+                    0 // x
+                );
+                self.scene.add( self.katamari );
+
+                self.katamari.addEventListener('collision',
+                    self.onKatamariCollide.bind(self));
+            },
+            function(error) {
+              console.log(error);
+            }
+        );         
+    };
+
+    Game.prototype.onKatamariCollide = function(other, rel_vel, rel_rot, con_norm) {
+        var delta = other.position.sub(this.katamari.position);
+        console.log(delta);
+
+        /*
+            var delta = other.position.sub(self.katamari.position);
+            
+                self.scene.remove(other);
+                other.position.set(0, 10, 0);
+                var lin_vel = self.katamari.getLinearVelocity();
+                var ang_vel = self.katamari.getAngularVelocity();
+                self.scene.remove(self.katamari);
+                self.katamari.add(other);
+                self.scene.add(self.katamari);
+                self.katamari.setLinearVelocity(lin_vel);
+                self.katamari.setAngularVelocity(ang_vel); */
+    };
+
+    Game.prototype.spawnItem = function(texture) {
+        var geometry = new THREE.BoxGeometry(10, .2, 10);
+        var material = Physijs.createMaterial(
+            new THREE.MeshLambertMaterial({map: texture},
+            .8, // high friction
+            1  // low res
+            )
+        );
+        var item = new Physijs.BoxMesh(geometry, material);
+        item.position.set(15, 5, 15);
+        item.type = 'ITEM';
+        this.scene.add(item);
     };
 
     Game.prototype.initEvents = function() {
@@ -185,19 +226,19 @@
         Game.prototype.onPhysicsUpdate = function() {
             this.scene.simulate(undefined, 1);
             if (this.upPress) {
-                var xDir = -10000 * Math.sin(this.camera_angle);
-                var zDir = -10000 * Math.cos(this.camera_angle);
+                var xDir = -100000 * Math.sin(this.camera_angle);
+                var zDir = -100000 * Math.cos(this.camera_angle);
                 this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
             } else if (this.downPress) {
-                var xDir = 10000 * Math.sin(this.camera_angle);
-                var zDir = 10000 * Math.cos(this.camera_angle);
+                var xDir = 100000 * Math.sin(this.camera_angle);
+                var zDir = 100000 * Math.cos(this.camera_angle);
                 this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
             }
 
             if (this.leftPress) {
-                this.camera_angle = (this.camera_angle + (Math.PI / 36));
+                this.camera_angle = (this.camera_angle - (Math.PI / 36 / 2));
             } else if (this.rightPress) {
-                this.camera_angle = (this.camera_angle - (Math.PI / 36));
+                this.camera_angle = (this.camera_angle + (Math.PI / 36 / 2));
             }
 
             this.physics_stats.update();
@@ -230,6 +271,11 @@
                 case 83: case 40:
                     //down arrow
                     this.downPress = true;
+                    break;
+
+                case 13:
+                    // enter
+                    this.spawnItem(this.texture_loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A'));
                     break;
             }
         };
