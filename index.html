@@ -442,7 +442,7 @@
                                     </label>
                                     <h3>Login to Facebook to Play!</h3>
                                     <br></br>
-                                    <fb:login-button scope="public_profile,email" onlogin="checkLoginState(function(){successLogin()}, function(){failLogin()});" id="fblogin"></fb:login-button>
+                                    <fb:login-button scope="user_about_me,user_friends,public_profile,email" onlogin="checkLoginState(function(){successLogin()}, function(){failLogin()});" id="fblogin"></fb:login-button>
                                 </fieldset>
                             </form>
                         </div>
