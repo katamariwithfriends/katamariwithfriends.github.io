@@ -106,8 +106,8 @@
             this.highscore = 0;
             this.initGround();
             this.initKatamari();
-            //this.music = new Audio('/media/songs/katamari_jazz.mp3');
-            //this.music.play();
+            this.music = new Audio('/media/songs/katamari_jazz.mp3');
+            this.music.play();
 
             // Init events
             this.initEvents();
@@ -157,6 +157,7 @@
     };
 
     Game.prototype.initTiles = function() {
+        this.tileSize = 8;
         for (var i = 0; i < 10; i++) {
             var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
             this.spawnItem(this.texture_loader.load(friend_pic));
@@ -165,6 +166,10 @@
     }
 
     Game.prototype.addFriend = function() {
+        console
+        if (this.friend_i % 5 == 0) {
+            this.tileSize = this.tileSize * 1.5;
+        }
         var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
         this.spawnItem(this.texture_loader.load(friend_pic));
         this.friend_i++;
@@ -229,10 +234,13 @@
         var linvel = katamari.getLinearVelocity();
         var angvel = katamari.getAngularVelocity();
 
+        var newX = other.geometry.parameters.depth;
+        var newZ = other.geometry.parameters.width;
+
         this.scene.remove(other);
         this.scene.remove(katamari);
 
-        var n = new Physijs.BoxMesh(new THREE.BoxGeometry(10, .2, 10), other.material);
+        var n = new Physijs.BoxMesh(new THREE.BoxGeometry(newX, .2, newZ), other.material);
         
 
         n.position.set(delta.x, delta.y, delta.z);
@@ -251,7 +259,9 @@
 
         for (var i = 0; i < katamari.children.length; i++) {
             var c = katamari.children[i];
-            var nchild = new Physijs.BoxMesh(new THREE.BoxGeometry(10, .2, 10), c.material);
+            var newX2 = c.geometry.parameters.depth;
+            var newZ2 = c.geometry.parameters.width;
+            var nchild = new Physijs.BoxMesh(new THREE.BoxGeometry(newX2, .2, newZ2), c.material);
             nchild.position.set(c.position.x, c.position.y, c.position.z);
             nchild.rotation.set(c.rotation.x, c.rotation.y, c.rotation.z);
             nk.add(nchild);
@@ -287,7 +297,8 @@
     };
 
     Game.prototype.spawnItem = function(texture) {
-        var geometry = new THREE.BoxGeometry(10, .4, 10);
+        console.log(this.tileSize);
+        var geometry = new THREE.BoxGeometry(this.tileSize, .4, this.tileSize);
         var material = Physijs.createMaterial(
             new THREE.MeshLambertMaterial({map: texture},
             .8, // high friction
@@ -352,12 +363,12 @@
         }
 
         if (this.upPress) {
-            var xDir = -100000 * Math.sin(this.camera_angle);
-            var zDir = -100000 * Math.cos(this.camera_angle);
+            var xDir = -200000 * Math.sin(this.camera_angle);
+            var zDir = -200000 * Math.cos(this.camera_angle);
             this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
         } else if (this.downPress) {
-            var xDir = 100000 * Math.sin(this.camera_angle);
-            var zDir = 100000 * Math.cos(this.camera_angle);
+            var xDir = 200000 * Math.sin(this.camera_angle);
+            var zDir = 200000 * Math.cos(this.camera_angle);
             this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
         }
 
@@ -534,7 +545,7 @@
             <div class="col-md-3"></div>
             <div id="heading" class=".col-md-6" style="text-align:center;">
                 <h1>Katamari with Friends!</h1>
-                <p>Press the Enter key to spawn more friends, and roll them up with WASD!</p>
+                <p>Roll up your friends with WASD!</p>
             </div>
             <div class="col-md-3"></div>
         </div>
