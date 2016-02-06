@@ -69,7 +69,7 @@
 
             // Init light
             this.light = new THREE.DirectionalLight( 0xFFFFFF );
-            this.light.position.set( 20, 40, -15 );
+            this.light.position.set( 20, 40, -15);
             this.light.target.position.copy( this.scene.position );
             this.light.castShadow = true;
             this.light.shadowCameraLeft = -60;
@@ -82,6 +82,12 @@
             this.light.shadowMapWidth = this.light.shadowMapHeight = 2048;
             this.light.shadowDarkness = .7;
             this.scene.add( this.light );
+
+
+            //Ambient light
+            this.ambientLight = new THREE.AmbientLight( 0x404040 ); // soft white light
+            this.ambientLight.position.set( -40, 20, -15);
+            this.scene.add(this.ambientLight );
 
             // Initial objects
             console.log(this);
