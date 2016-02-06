@@ -60,6 +60,7 @@
             );
             this.camera.position.set( 60, 50, 60 );
             this.camera.lookAt( this.scene.position );
+            this.camera_angle = 0;
             this.scene.add( this.camera );
 
             // Init texture Loader
@@ -86,6 +87,7 @@
             console.log(this);
             this.initGround();
             this.initKatamari();
+            new Audio('/media/songs/katamari_jazz.mp3').play()
 
             // Init events
             this.initEvents();
@@ -137,56 +139,117 @@
     };
 
     Game.prototype.initEvents = function() {
-            document.addEventListener('keydown', this.onKeyPress.bind(this));
-
+            document.addEventListener('keydown', this.onKeyDown.bind(this));
+            document.addEventListener('keyup', this.onKeyUp.bind(this));
+            this.leftPress = false;
+            this.upPress = false;
+            this.rightPress = false;
+            this.downPress = false;
     };
 
         Game.prototype.onPhysicsUpdate = function() {
             this.scene.simulate(undefined, 1);
+            if (this.upPress) {
+                var xDir = -10000 * Math.sin(this.camera_angle);
+                var zDir = -10000 * Math.cos(this.camera_angle);
+                this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
+            } else if (this.downPress) {
+                var xDir = 10000 * Math.sin(this.camera_angle);
+                var zDir = 10000 * Math.cos(this.camera_angle);
+                this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
+            }
+
+            if (this.leftPress) {
+                this.camera_angle = (this.camera_angle + (Math.PI / 36));
+            } else if (this.rightPress) {
+                this.camera_angle = (this.camera_angle - (Math.PI / 36));
+            }
+
             this.physics_stats.update();
         };
 
         Game.prototype.render = function() {
             requestAnimationFrame(this.render.bind(this));
+            this.camera.lookAt(this.katamari.position);
+            var cameraX = 100 * Math.sin(this.camera_angle) + this.katamari.position.x;
+            var cameraZ = 100 * Math.cos(this.camera_angle) + this.katamari.position.z;
             this.renderer.render(this.scene, this.camera);
+            this.camera.position.set(cameraX, 50, cameraZ);
             this.render_stats.update();
         };
 
-        Game.prototype.onKeyPress = function(event) {
+        Game.prototype.onKeyDown = function(event) {
             switch(event.keyCode) {
                 case 65: case 37:
-                    console.log('left');
-                    this.katamari.applyCentralImpulse(new THREE.Vector3(-100, 0, 0));
+                    //left arrow
+                    this.leftPress = true;
                     break;
                 case 68: case 39:
-                    console.log('right');
+                    //right arrow
+                    this.rightPress = true;
                     break;
                 case 87: case 38:
-                    console.log('up');
+                    //up arrow
+                    this.upPress = true;
                     break;
                 case 83: case 40:
-                    console.log('down');
+                    //down arrow
+                    this.downPress = true;
                     break;
             }
         };
 
 
+        Game.prototype.onKeyUp = function(event) {
+            switch(event.keyCode) {
+                case 65: case 37:
+                    //left arrow
+                    this.leftPress = false;
+                    break;
+                case 68: case 39:
+                    //right arrow
+                    this.rightPress = false;
+                    break;
+                case 87: case 38:
+                    //up arrow
+                    this.upPress = false;
+                    break;
+                case 83: case 40:
+                    //down arrow
+                    this.downPress = false;
+                    break;   
+            }
+        }
+
     $(document).ready(function() {
         initLoginStatus(function(){
-            getUserId(function(user_id){
-                var game = new Game();
-                game.user_id = user_id;
-                game.init();
-            });
+            successLogin()
+        }, function(){
+            failLogin()
         });
     });
 
-    
+    function successLogin(){
+        getUserId(function(user_id){
+            $("#login").hide();
+            var game = new Game();
+            game.user_id = user_id;
+            game.init();
+        });
+    }
+
+    function failLogin(){
+        $("#login").show();
+    }
 
     </script>
 </head>
 
 <body>
+    <div id="login" hidden>
+        <fb:login-button scope="public_profile,email" onlogin="checkLoginState(function(){successLogin()}, function(){failLogin()});">
+        </fb:login-button>
+    </div>
     <div id="heading">
         <h1>Title</h1>
         <p>Does stuff</p>

@@ -1,4 +1,4 @@
-function initLoginStatus(onSuccess){
+function initLoginStatus(onSuccess, onLogin){
   window.fbAsyncInit = function() {
     FB.init({
       appId      : '1020005368072813',
@@ -22,12 +22,14 @@ function initLoginStatus(onSuccess){
     FB.getLoginStatus(function(response) {
         statusChangeCallback(response, function(){
           onSuccess();
+        }, function(){
+          onLogin();
         });
     });
   };
 }
 
-function statusChangeCallback(response, onSuccess) {
+function statusChangeCallback(response, onSuccess, onLogin) {
   console.log('statusChangeCallback');
   console.log(response);
   // The response object is returned with a status field that lets the
@@ -40,14 +42,16 @@ function statusChangeCallback(response, onSuccess) {
     onSuccess();
   } else if (response.status === 'not_authorized') {
     // The person is logged into Facebook, but not your app.
-    document.getElementById('status').innerHTML = 'Please log ' +
-      'into this app.';
+    // document.getElementById('status').innerHTML = 'Please log ' +
+    //   'into this app.';
+    onLogin();
     console.log("please log in");
   } else {
     // The person is not logged into Facebook, so we're not sure if
     // they are logged into this app or not.
-    document.getElementById('status').innerHTML = 'Please log ' +
-      'into Facebook.';
+    // document.getElementById('status').innerHTML = 'Please log ' +
+    //   'into Facebook.';
+    onLogin();
     console.log("please log in2");
   }
 }
@@ -61,6 +65,17 @@ function statusChangeCallback(response, onSuccess) {
   js.src = "//connect.facebook.net/en_US/sdk.js";
   fjs.parentNode.insertBefore(js, fjs);
 }(document, 'script', 'facebook-jssdk'));
+
+
+function checkLoginState(onSuccess, onLogin) {
+  FB.getLoginStatus(function(response) {
+    statusChangeCallback(response, function(){
+      onSuccess();
+    }, function(){
+      onLogin();
+    });
+  });
+}
 
 
 function getUserId(onData) {
