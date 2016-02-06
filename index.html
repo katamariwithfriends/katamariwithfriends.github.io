@@ -95,12 +95,10 @@
             this.initGround();
             this.initKatamari();
             this.music = new Audio('/media/songs/katamari_jazz.mp3');
-            //this.music.play();
+            this.music.play();
 
             // Init events
             this.initEvents();
-
-            this.initWorldMap();
 
             // Begin rendering
             requestAnimationFrame(this.render.bind(this));
@@ -124,10 +122,16 @@
         // set the format, likely RGB unless you've gone crazy
         cubemap.format = THREE.RGBFormat;
 
-        var material = new THREE.MeshLambertMaterial({
-          color: 0xffffff,
+        var boxMaterial = new THREE.MeshLambertMaterial({
+          //color: 0xffffff,
           envMap: cubemap
         });
+        var skybox = new THREE.Mesh(
+            new THREE.CubeGeometry(1000, 1000, 1000),
+            boxMaterial
+        );
+
+        this.scene.add(skybox);
     }
 
     Game.prototype.initGround = function() {
