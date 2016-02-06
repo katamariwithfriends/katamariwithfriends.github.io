@@ -103,6 +103,7 @@
             // Initial objects
             console.log(this);
             this.score = 0;
+            this.highscore = 0;
             this.initGround();
             this.initKatamari();
             //this.music = new Audio('/media/songs/katamari_jazz.mp3');
@@ -324,6 +325,9 @@
         }
         this.score = 0;
         document.getElementById("score").innerText = "";
+
+        $("#submit").html("Share Score!");
+        $("#submit").prop('disabled', false);
         this.initKatamari();
         initTiles();
     };
@@ -464,7 +468,15 @@
                 }
                 document.getElementById("submit").onclick= function(e) {
                     var message = "I scored a high score of " + game.score + " playing Katarmari with Friends!"
+                    if(game.score > game.highscore){
+                        game.highscore = game.score;
+                        document.getElementById("highscore").innerText = game.highscore;
+                    }
+                    game.score = 0;
+
                     postWall(game.user_id, message, function(response){
+                        $("#submit").html("Shared!");
+                        $("#submit").prop('disabled', true);
                         console.log(response);
                     }, function(response){
                         console.log("Error");
@@ -519,16 +531,23 @@
 
     <div id="game" hidden>
         <div class="row">
-            <div class=".col-md-3"></div>
+            <div class="col-md-3"></div>
             <div id="heading" class=".col-md-6" style="text-align:center;">
                 <h1>Katamari with Friends!</h1>
                 <p>Press the Enter key to spawn more friends, and roll them up with WASD!</p>
             </div>
-            <div class=".col-md-3"></div>
+            <div class="col-md-3"></div>
         </div>
-            <button id="reset" class="btn btn-danger">Reset</button>
-            <button id="submit" class="btn btn-success">Submit Score!</button>
-            <h1>Score : <span id="score"></span> </h1>
+        <div clas="row">
+            <div class="col-md-3">
+                <h2>High Score : <span id="highscore">0</span></h2>
+                <h3>Score : <span id="score">0</span></h3>
+            </div>
+            <div class="col-md-6"></div>
+            <div class="col-md-3">
+                <button id="reset" class="btn btn-danger">Reset</button>
+                <button id="submit" class="btn btn-success">Share Score!</button>
+            </div> 
         </div>
         
         <div id="viewport" style="margin: 10px 50px;"></div>
