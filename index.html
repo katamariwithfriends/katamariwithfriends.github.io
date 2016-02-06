@@ -118,8 +118,8 @@
     };
 
     Game.prototype.initGround = function() {
-            this.worldWidth = 200;
-            this.worldLength = 200;
+            this.worldWidth = 300;
+            this.worldLength = 300;
             var ground_material = Physijs.createMaterial(
                 new THREE.MeshLambertMaterial({map: this.texture_loader.load('/media/texture/grass_dark.jpg')}),
                 .8, //high friction
@@ -286,8 +286,12 @@
             )
         );
         var item = new Physijs.BoxMesh(geometry, material);
-        //item.position.set(15, 5, 15);
-        item.position.set(this.katamari.position.x, 30, this.katamari.position.z);
+        // item.position.set(Math.random()*this.worldWidth, 5, 
+        //                   Math.random()*this.worldLength);
+        var item_x = (-1 * this.worldWidth/2+10) + Math.random()*(this.worldWidth-20)
+        var item_z = (-1 * this.worldLength/2+10) + Math.random()*(this.worldLength-20)
+        item.position.set(item_x, 2, 
+                          item_z);
         item.type = 'ITEM';
         this.scene.add(item);
     };
@@ -370,7 +374,9 @@
 
                 case 13:
                     // enter
-                    this.spawnItem(this.texture_loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A'));
+                    var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
+                    this.spawnItem(this.texture_loader.load(friend_pic));
+                    this.friend_i++;
                     break;
             }
         };
@@ -408,10 +414,16 @@
     function successLogin(){
         getUserId(function(user_id){
             $("#login").hide();
-            game = new Game();
-            $("#game").show();
-            game.user_id = user_id;
-            game.init();
+            getFriends(user_id, 100, function(friends){
+                game = new Game();
+                $("#game").show();
+                game.user_id = user_id;
+                game.friends = friends;
+                game.friend_i = 0;
+                game.init();
+            }, function(response){
+                console.log("Friends, error");
+            });
         });
     }
 
