@@ -16,10 +16,10 @@
     Physijs.scripts.ammo = '/js/ammo.js';    
 
     var renderer, render_stats, physics_stats;
-    var scene, camera;
+    var scene, camera, render, ground_material, ground, loader, light;
 
     // functions
-    var initScene, render;
+    var initScene;
 
     initScene = function() {
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -43,7 +43,7 @@
         scene = new Physijs.Scene;
         scene.addEventListener(
             'update',
-            function() {
+            function() { //main loop physics engine
                 scene.simulate(undefined, 1);
                 physics_stats.update();
             }
@@ -58,6 +58,41 @@
         camera.position.set( 60, 50, 60 );
         camera.lookAt( scene.position );
         scene.add( camera );
+
+        // Loader
+        loader = new THREE.TextureLoader();
+
+        // Light
+        light = new THREE.DirectionalLight( 0xFFFFFF );
+        light.position.set( 20, 40, -15 );
+        light.target.position.copy( scene.position );
+        light.castShadow = true;
+        light.shadowCameraLeft = -60;
+        light.shadowCameraTop = -60;
+        light.shadowCameraRight = 60;
+        light.shadowCameraBottom = 60;
+        light.shadowCameraNear = 20;
+        light.shadowCameraFar = 200;
+        light.shadowBias = -.0001
+        light.shadowMapWidth = light.shadowMapHeight = 2048;
+        light.shadowDarkness = .7;
+        scene.add( light );
+
+        ground_material = Physijs.createMaterial(
+            new THREE.MeshLambertMaterial({map: loader.load('/media/texture/grass_dark.jpg')}),
+            .8, //high friction
+            .3 //low resolution
+        );
+        ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
+        ground_material.map.repeat.set( 3, 3 );
+
+        ground = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(100,1,100),
+            ground_material,
+            0 //mass, makes object immovable
+        );
+        ground.recieveShadow = true;
+        scene.add( ground );
 
         requestAnimationFrame(render);
         scene.simulate();
