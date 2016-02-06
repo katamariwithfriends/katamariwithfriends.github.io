@@ -182,8 +182,6 @@
                 );
                 self.scene.add( self.katamari );
 
-                self.katamari.addEventListener('collision',
-                    self.onKatamariCollide.bind(self));
             },
             function(error) {
               console.log(error);
@@ -191,23 +189,6 @@
         );         
     };
 
-    Game.prototype.onKatamariCollide = function(other, rel_vel, rel_rot, con_norm) {
-        var delta = other.position.sub(this.katamari.position);
-        //console.log(delta);
-
-        /*
-            var delta = other.position.sub(self.katamari.position);
-            
-                self.scene.remove(other);
-                other.position.set(0, 10, 0);
-                var lin_vel = self.katamari.getLinearVelocity();
-                var ang_vel = self.katamari.getAngularVelocity();
-                self.scene.remove(self.katamari);
-                self.katamari.add(other);
-                self.scene.add(self.katamari);
-                self.katamari.setLinearVelocity(lin_vel);
-                self.katamari.setAngularVelocity(ang_vel); */
-    };
 
     Game.prototype.onKatamariOnTop = function(other) {
         var katamari = this.katamari;
@@ -254,10 +235,12 @@
             nk.add(nchild);
             var self = this;
             nchild.addEventListener('collision', function(other) {
-            if (other.type == 'ITEM') {
-                self.onKatamariOnTop(other);
+                //console.log('collide');
+                if (other.type == 'ITEM') {
+                    self.onKatamariOnTop(other);
+                    }
                 }
-            });
+            );
         }
 
         nk.add(n);
@@ -269,6 +252,7 @@
 
         var self = this;
         n.addEventListener('collision', function(other) {
+            //console.log('collide2');
             if (other.type == 'ITEM') {
                 self.onKatamariOnTop(other);
             }
@@ -419,7 +403,7 @@
     function successLogin(){
         getUserId(function(user_id){
             $("#login").hide();
-            getFriends(user_id, 100, function(friends){
+            getFriends(user_id, 120, function(friends){
                 game = new Game();
                 $("#game").show();
                 game.user_id = user_id;
