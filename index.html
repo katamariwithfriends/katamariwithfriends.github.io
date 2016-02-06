@@ -182,8 +182,6 @@
                 );
                 self.scene.add( self.katamari );
 
-                self.katamari.addEventListener('collision',
-                    self.onKatamariCollide.bind(self));
             },
             function(error) {
               console.log(error);
@@ -191,23 +189,6 @@
         );         
     };
 
-    Game.prototype.onKatamariCollide = function(other, rel_vel, rel_rot, con_norm) {
-        var delta = other.position.sub(this.katamari.position);
-        //console.log(delta);
-
-        /*
-            var delta = other.position.sub(self.katamari.position);
-            
-                self.scene.remove(other);
-                other.position.set(0, 10, 0);
-                var lin_vel = self.katamari.getLinearVelocity();
-                var ang_vel = self.katamari.getAngularVelocity();
-                self.scene.remove(self.katamari);
-                self.katamari.add(other);
-                self.scene.add(self.katamari);
-                self.katamari.setLinearVelocity(lin_vel);
-                self.katamari.setAngularVelocity(ang_vel); */
-    };
 
     Game.prototype.onKatamariOnTop = function(other) {
         var katamari = this.katamari;
@@ -254,10 +235,12 @@
             nk.add(nchild);
             var self = this;
             nchild.addEventListener('collision', function(other) {
-            if (other.type == 'ITEM') {
-                self.onKatamariOnTop(other);
+                //console.log('collide');
+                if (other.type == 'ITEM') {
+                    self.onKatamariOnTop(other);
+                    }
                 }
-            });
+            );
         }
 
         nk.add(n);
@@ -266,10 +249,10 @@
         nk.setLinearVelocity(linvel);
         nk.setAngularVelocity(angvel);
         this.katamari = nk;
-        this.katamari.position.y = (this.katamari.position.y + 3)
 
         var self = this;
         n.addEventListener('collision', function(other) {
+            //console.log('collide2');
             if (other.type == 'ITEM') {
                 self.onKatamariOnTop(other);
             }
@@ -278,7 +261,7 @@
     };
 
     Game.prototype.spawnItem = function(texture) {
-        var geometry = new THREE.BoxGeometry(10, .2, 10);
+        var geometry = new THREE.BoxGeometry(10, .4, 10);
         var material = Physijs.createMaterial(
             new THREE.MeshLambertMaterial({map: texture},
             .8, // high friction
@@ -340,6 +323,12 @@
                 this.camera_angle = (this.camera_angle - (Math.PI / 36 / 2));
             }
 
+            if (this.katamari.getLinearVelocity().y > 20) {
+                console.log("fix the thing");
+                this.katamari.setLinearVelocity(new THREE.Vector3(
+                    this.katamari.getLinearVelocity().x, 20,
+                    this.katamari.getLinearVelocity().z));
+            }
             this.physics_stats.update();
         };
 
