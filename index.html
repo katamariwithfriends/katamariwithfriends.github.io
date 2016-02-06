@@ -12,176 +12,155 @@
     <script type="text/javascript">
     'use strict';
 
-    Physijs.scripts.worker = '/js/physijs_worker.js';
-    Physijs.scripts.ammo = '/js/ammo.js';    
+    function Game() {
 
-    var renderer, render_stats, physics_stats;
-    var scene, camera, render, ground_material, ground, loader, 
-        light, katamari_material, katamari;
-
-    // functions
-    var initScene, spawnKatamari, initEventHandling;
-
-    initScene = function() {
-        renderer = new THREE.WebGLRenderer({ antialias: true });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.shadowMap.enabled = true;
-        renderer.shadowMapSoft = true;
-        document.getElementById('viewport').appendChild(renderer.domElement);
-
-        render_stats = new Stats();
-        render_stats.domElement.style.position = 'absolute';
-        render_stats.domElement.style.top = '0px;';
-        render_stats.domElement.style.zIndex = 100;
-        document.getElementById('viewport').appendChild(render_stats.domElement);
-
-        physics_stats = new Stats();
-        physics_stats.domElement.style.position = 'absolute';
-        physics_stats.domElement.style.top = '50px;';
-        physics_stats.domElement.style.zIndex = 100;
-        document.getElementById('viewport').appendChild(physics_stats.domElement);
-        
-        scene = new Physijs.Scene;
-        scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
-        scene.addEventListener(
-            'update',
-            function() { //main loop physics engine
-                scene.simulate(undefined, 1);
-                physics_stats.update();
-            }
-        );
-
-        camera = new THREE.PerspectiveCamera(
-            35,
-            window.innerWidth / window.innerHeight,
-            1,
-            1000
-        );
-        camera.position.set( 60, 50, 60 );
-        camera.lookAt( scene.position );
-        scene.add( camera );
-
-        // Loader
-        loader = new THREE.TextureLoader();
-        loader.crossOrigin = "anonymous";
-        // Light
-        light = new THREE.DirectionalLight( 0xFFFFFF );
-        light.position.set( 20, 40, -15 );
-        light.target.position.copy( scene.position );
-        light.castShadow = true;
-        light.shadowCameraLeft = -60;
-        light.shadowCameraTop = -60;
-        light.shadowCameraRight = 60;
-        light.shadowCameraBottom = 60;
-        light.shadowCameraNear = 20;
-        light.shadowCameraFar = 200;
-        light.shadowBias = -.0001
-        light.shadowMapWidth = light.shadowMapHeight = 2048;
-        light.shadowDarkness = .7;
-        scene.add( light );
-
-        ground_material = Physijs.createMaterial(
-            new THREE.MeshLambertMaterial({map: loader.load('/media/texture/grass_dark.jpg')}),
-            .8, //high friction
-            .3 //low resolution
-        );
-        ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
-        ground_material.map.repeat.set( 3, 3 );
-
-        ground = new Physijs.BoxMesh(
-            new THREE.BoxGeometry(100,1,100),
-            ground_material,
-            0 //mass, makes object immovable
-        );
-        ground.recieveShadow = true;
-        scene.add( ground );
-
-        spawnKatamari();
-        initEventHandling();
-
-        requestAnimationFrame(render);
-        scene.simulate();
-    };
-
-    spawnKatamari = function() {
-        //SphereGeometry(radius, widthSegments, heightSegments, 
-        //               phiStart, phiLength, thetaStart, thetaLength)
-        var geometry = new THREE.SphereGeometry( 5, 8, 8 );
-        katamari_material  = Physijs.createMaterial(
-            new THREE.MeshLambertMaterial({map: loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A')}),
-            .8, //high friction
-            .3 //low resolution
-        );
-        katamari = new Physijs.SphereMesh( geometry, katamari_material );
-        katamari.position.set(
-            0, // y
-            20, // z
-            0 // x
-        );
-        scene.add( katamari );
     }
 
-    initEventHandling = (function() {
-        var _vector = new THREE.Vector3,
-            handleKeyPress;
-        
-        handleKeyPress = function( evt ) {
-            //TODO: support pressing multiple keys at once.
-            switch (evt.keyCode) {
-                case 65:
-                case 37:
-                    //left arrow
-                    console.log("left");
-                    katamari.applyCentralImpulse(new THREE.Vector3(-100, 0, 0));
+    Game.prototype.init = function() {
+            Physijs.scripts.worker = '/js/physijs_worker.js';
+            Physijs.scripts.ammo = '/js/ammo.js';
+
+            // Init renderer 
+            this.renderer = new THREE.WebGLRenderer({ antialias: true });
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.shadowMap.enabled = true;
+            this.renderer.shadowMapSoft = true;
+            document.getElementById('viewport').appendChild(this.renderer.domElement);
+
+            // Init Stats
+            this.render_stats = new Stats();
+            this.render_stats.domElement.style.position = 'absolute';
+            this.render_stats.domElement.style.top = '0px;';
+            this.render_stats.domElement.style.zIndex = 100;
+            document.getElementById('viewport').appendChild(this.render_stats.domElement);
+            this.physics_stats = new Stats();
+            this.physics_stats.domElement.style.position = 'absolute';
+            this.physics_stats.domElement.style.top = '50px;';
+            this.physics_stats.domElement.style.zIndex = 100;
+            document.getElementById('viewport').appendChild(this.physics_stats.domElement);
+
+            // Init physics
+            this.scene = new Physijs.Scene;
+            this.scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
+            this.scene.addEventListener(
+                'update',
+                this.onPhysicsUpdate.bind(this)
+            );
+
+            // Init camera
+            this.camera = new THREE.PerspectiveCamera(
+                35,
+                window.innerWidth / window.innerHeight,
+                1,
+                1000
+            );
+            this.camera.position.set( 60, 50, 60 );
+            this.camera.lookAt( this.scene.position );
+            this.scene.add( this.camera );
+
+            // Init texture Loader
+            this.texture_loader = new THREE.TextureLoader();
+            this.texture_loader.crossOrigin = 'anonymous';
+
+            // Init light
+            this.light = new THREE.DirectionalLight( 0xFFFFFF );
+            this.light.position.set( 20, 40, -15 );
+            this.light.target.position.copy( this.scene.position );
+            this.light.castShadow = true;
+            this.light.shadowCameraLeft = -60;
+            this.light.shadowCameraTop = -60;
+            this.light.shadowCameraRight = 60;
+            this.light.shadowCameraBottom = 60;
+            this.light.shadowCameraNear = 20;
+            this.light.shadowCameraFar = 200;
+            this.light.shadowBias = -.0001
+            this.light.shadowMapWidth = this.light.shadowMapHeight = 2048;
+            this.light.shadowDarkness = .7;
+            this.scene.add( this.light );
+
+            // Initial objects
+            console.log(this);
+            this.initGround();
+            this.initKatamari();
+
+            // Init events
+            this.initEvents();
+
+            // Begin rendering
+            requestAnimationFrame(this.render.bind(this));
+            this.scene.simulate();            
+    };
+
+    Game.prototype.initGround = function() {
+            var ground_material = Physijs.createMaterial(
+                new THREE.MeshLambertMaterial({map: this.texture_loader.load('/media/texture/grass_dark.jpg')}),
+                .8, //high friction
+                .3 //low resolution
+            );
+            ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
+            ground_material.map.repeat.set( 3, 3 );
+
+            this.ground = new Physijs.BoxMesh(
+                new THREE.BoxGeometry(100,1,100),
+                ground_material,
+                0 //mass, makes object immovable
+            );
+            this.ground.recieveShadow = true;
+            this.scene.add( this.ground ); 
+    };
+
+    Game.prototype.initKatamari = function() {
+            var geometry = new THREE.SphereGeometry( 5, 8, 8 );
+            var katamari_material  = Physijs.createMaterial(
+                new THREE.MeshLambertMaterial({map: this.texture_loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A')}),
+                .8, //high friction
+                .3 //low resolution
+            );
+            this.katamari = new Physijs.SphereMesh( geometry, katamari_material );
+            this.katamari.position.set(
+                0, // y
+                20, // z
+                0 // x
+            );
+            this.scene.add( this.katamari );
+    };
+
+    Game.prototype.initEvents = function() {
+            document.addEventListener('keydown', this.onKeyPress.bind(this));
+
+    };
+
+        Game.prototype.onPhysicsUpdate = function() {
+            this.scene.simulate(undefined, 1);
+            this.physics_stats.update();
+        };
+
+        Game.prototype.render = function() {
+            requestAnimationFrame(this.render.bind(this));
+            this.renderer.render(this.scene, this.camera);
+            this.render_stats.update();
+        };
+
+        Game.prototype.onKeyPress = function(event) {
+            switch(event.keyCode) {
+                case 65: case 37:
+                    console.log('left');
+                    this.katamari.applyCentralImpulse(new THREE.Vector3(-100, 0, 0));
                     break;
-                case 68:
-                case 39:
-                    //right arrow
-                    console.log("right");
-                    katamari.applyCentralImpulse(new THREE.Vector3(100, 0, 0));
+                case 68: case 39:
+                    console.log('right');
                     break;
-                default:
-                    console.log(evt.keyCode);
+                case 87: case 38:
+                    console.log('up');
                     break;
-            }
-            switch (evt.keyCode) {
-                case 87:
-                case 38:
-                    //up arrow
-                    console.log("up");
-                    katamari.applyCentralImpulse(new THREE.Vector3(0, 0, -100));
-                    break;
-                case 83:
-                case 40:
-                    //down arrow
-                    console.log("down");
-                    katamari.applyCentralImpulse(new THREE.Vector3(0, 0, 100));
-                    break;
-                default:
-                    console.log(evt.keyCode);
+                case 83: case 40:
+                    console.log('down');
                     break;
             }
         };
-        
-        return function() {
-            document.addEventListener( 'keydown', handleKeyPress );
-        }
-    })();
 
-
-    function handleKeyPress(e) {
-        
-    }
-
-
-
-    render = function() {
-        requestAnimationFrame(render);
-        renderer.render(scene, camera);
-        render_stats.update();
-    };
-
-    window.onload = initScene;
+    var game = new Game();
+    window.onload = game.init.bind(game);
 
     </script>
 </head>
