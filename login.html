@@ -65,6 +65,7 @@
 
   };
 
+  var use_id = 0;
   // Load the SDK asynchronously
   (function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
@@ -79,11 +80,13 @@
   function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
+      user_id = response["id"];
       console.log('Successful login for: ' + response.name);
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
+      getFriends(user_id, 5);
     });
-    getFriends(949953021709320, 5);
+    
   }
 
   function getFriends(id, limit){
