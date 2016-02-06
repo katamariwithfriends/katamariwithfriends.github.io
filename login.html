@@ -85,7 +85,7 @@
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
       getFriends(user_id, 5);
-    });
+    }, {scope: 'user_about_me,user_friends,user_photos,user_relationships'});
     
   }
 
