@@ -141,3 +141,22 @@ function getFriends(id, limit, onData, onError){
       }
   );
 }
+
+function postWall(id, onSuccess, onError){
+  /* make the API call */
+  url = "/" + id + "/feed";
+  FB.api(
+      url,
+      "POST",
+      {
+          "message": "This is a test message"
+      },
+      function (response) {
+        if (response && !response.error) {
+          onSuccess(response);
+        } else {
+          onError(response);
+        }
+      }
+  );
+}
