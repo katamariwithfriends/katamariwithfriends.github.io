@@ -19,7 +19,7 @@
     var scene, camera, render, ground_material, ground, loader, light;
 
     // functions
-    var initScene;
+    var initScene, spawnKatamari;
 
     initScene = function() {
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -41,6 +41,7 @@
         document.getElementById('viewport').appendChild(physics_stats.domElement);
         
         scene = new Physijs.Scene;
+        scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
         scene.addEventListener(
             'update',
             function() { //main loop physics engine
@@ -94,9 +95,31 @@
         ground.recieveShadow = true;
         scene.add( ground );
 
+        spawnKatamari();
+
         requestAnimationFrame(render);
         scene.simulate();
     };
+
+    spawnKatamari = function() {
+        //SphereGeometry(radius, widthSegments, heightSegments, 
+        //               phiStart, phiLength, thetaStart, thetaLength)
+        var geometry = new THREE.SphereGeometry( 5, 8, 8 );
+        var material  = Physijs.createMaterial(
+            new THREE.MeshLambertMaterial({map: loader.load('/media/texture/purple.png')}),
+            .8, //high friction
+            .3 //low resolution
+        );
+        var sphere = new Physijs.BoxMesh( geometry, material );
+        sphere.position.set(
+            0, // y
+            20, // z
+            0 // x
+        );
+        scene.add( sphere );
+    }
+
+
 
     render = function() {
         requestAnimationFrame(render);
