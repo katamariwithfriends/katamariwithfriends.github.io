@@ -101,8 +101,8 @@
             console.log(this);
             this.initGround();
             this.initKatamari();
-            this.music = new Audio('/media/songs/katamari_jazz.mp3');
-            this.music.play();
+            //this.music = new Audio('/media/songs/katamari_jazz.mp3');
+            //this.music.play();
 
             // Init events
             this.initEvents();
@@ -209,7 +209,39 @@
     };
 
     Game.prototype.onKatamariOnTop = function(other) {
-        console.log(other);
+        var katamari = this.katamari;
+        var delta = new THREE.Vector3(
+            other.position.x - katamari.position.x,
+            other.position.y - katamari.position.y,
+            other.position.z - katamari.position.z
+        );
+        var axis = new THREE.Vector3(1, 0, 0);
+        delta.applyAxisAngle(axis, -katamari.rotation.x);
+        axis.set(0, 1, 0);
+        delta.applyAxisAngle(axis, -katamari.rotation.y);
+        axis.set(0, 0, 1);
+        delta.applyAxisAngle(axis, -katamari.rotation.z);
+
+        var linvel = katamari.getLinearVelocity();
+        var angvel = katamari.getAngularVelocity();
+
+        this.scene.remove(other);
+        this.scene.remove(katamari);
+
+        other.position.set(delta.x, delta.y, delta.z);
+        other.rotation.set(other.rotation.x - katamari.rotation.x,
+                           other.rotation.y - katamari.rotation.y,
+                           other.rotation.z - katamari.rotation.z);
+        //(new THREE.Vector3(1, 0, 0), katamari.rotation.x);
+        //other.rotateOnAxis(new THREE.Vector3(0, 1, 0), katamari.rotation.y);
+        //other.rotateOnAxis(new THREE.Vector3(0, 0, 1), katamari.rotation.z);
+
+        //katamari.add(other);
+        this.scene.add(katamari);
+
+        katamari.setLinearVelocity(linvel);
+        katamari.setAngularVelocity(angvel);
+
     };
 
     Game.prototype.spawnItem = function(texture) {
