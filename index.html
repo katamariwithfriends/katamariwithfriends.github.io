@@ -442,6 +442,17 @@
                     game.resetGame();
                     return false;
                 }
+                document.getElementById("submit").onclick= function(e) {
+                    var message = "I scored a high score of " + game.score + " playing Katarmari with Friends!"
+                    postWall(game.user_id, message, function(response){
+                        console.log(response);
+                    }, function(response){
+                        console.log("Error");
+                        console.log(response);
+                    }); 
+                    
+                    return false;
+                }
             }, function(response){
                 console.log("Friends, error");
             });
@@ -487,12 +498,19 @@
     </div>
 
     <div id="game" hidden>
-        <div id="heading">
-            <h1>Katamari with Friends!</h1>
-            <p>Press the Enter key to spawn more friends, and roll them up with WASD!</p>
+        <div class="row">
+            <div class=".col-md-3"></div>
+            <div id="heading" class=".col-md-6" style="text-align:center;">
+                <h1>Katamari with Friends!</h1>
+                <p>Press the Enter key to spawn more friends, and roll them up with WASD!</p>
+            </div>
+            <div class=".col-md-3"></div>
         </div>
-        <button id="reset">Reset</button>
-        <h1>Score : <span id="score"></span> </h1>
+            <button id="reset" class="btn btn-danger">Reset</button>
+            <button id="submit" class="btn btn-success">Submit Score!</button>
+            <h1>Score : <span id="score"></span> </h1>
+        </div>
+        
         <div id="viewport"></div>
     </div>
     
