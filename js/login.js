@@ -87,8 +87,8 @@ function getUserId(onData) {
 }
 
 
-function getProPic(id, onData, onError){
-  url = "/" + id + "/picture?height=200&width=200&";
+function getProPic(id, size, onData, onError){
+  url = "/" + id + "/picture?height=" + size + "&width=" + size + "&";
   FB.api(
     url,
     function (response) {
@@ -101,5 +101,22 @@ function getProPic(id, onData, onError){
         console.log(response);
       }
     }
+  );
+}
+
+function getFriends(id, limit, onData, onError){
+  url = "/" + id + "/invitable_friends?limit="+ limit + "&";
+  FB.api(
+      url,
+      function (response) {
+        if (response && !response.error) {
+          onData(response["data"]);
+          console.log(response);
+        } else {
+          onError(response);
+          console.log("Error");
+          console.log(response);
+        }
+      }
   );
 }

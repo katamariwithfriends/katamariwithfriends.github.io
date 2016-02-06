@@ -7,6 +7,12 @@
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
 
+    <script src="http://mymaplist.com/js/vendor/TweenLite.min.js"></script>
+    <script type="text/javascript" src="js/parallax.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/parallax.css">
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+
     <script type="text/javascript" src="/js/login.js"></script>
 
     <script type="text/javascript" src="/js/three.min.js"></script>
@@ -15,6 +21,8 @@
 
     <script type="text/javascript">
     'use strict';
+
+    var game;
 
     function Game() {
 
@@ -185,10 +193,10 @@
     }
 
     Game.prototype.initKatamari = function() {
-        var geometry = new THREE.SphereGeometry( 10, 8, 8 );
+        var geometry = new THREE.SphereGeometry( 10, 16, 16 );    
         var self = this;
-        console.log(this.user_id);
-        getProPic(this.user_id, function(url) {
+        this.propic_size = 300;
+        getProPic(this.user_id, this.propic_size, function(url) {
                 var katamari_material  = Physijs.createMaterial(
                     new THREE.MeshLambertMaterial({map: self.texture_loader.load(url)}),
                     .2, //high friction
@@ -212,14 +220,12 @@
     };
 
     Game.prototype.onKatamariCollide = function(other, rel_vel, rel_rot, con_norm) {
-        var delta = other.position.sub(JSON.parse(JSON.stringify(this.katamari.position)));
-            console.log(delta);
-            var self= this;
-            console.log(other.weigth);
-            if (other.type == 'ITEM'){
-                console.log(self.katamari.position);
-                var delta = other.position.sub(self.katamari.position);
-                console.log(self.katamari.position);
+
+        var delta = other.position.sub(this.katamari.position);
+        //console.log(delta);
+
+        /*
+            var delta = other.position.sub(self.katamari.position) {
                 self.scene.remove(other);
                 other.position.set(0, 10, 0);
                 var lin_vel = self.katamari.getLinearVelocity();
@@ -230,6 +236,10 @@
                 self.katamari.setLinearVelocity(lin_vel);
                 self.katamari.setAngularVelocity(ang_vel);
             }
+    };
+
+    Game.prototype.onKatamariOnTop = function(other) {
+        console.log(other);
     };
 
     Game.prototype.spawnItem = function(texture) {
@@ -257,6 +267,23 @@
 
         Game.prototype.onPhysicsUpdate = function() {
             this.scene.simulate(undefined, 1);
+
+            for (var i = 0; i < this.katamari._physijs.touches.length; i++) {
+                var other = this.scene._objects[this.katamari._physijs.touches[i]];
+                if (other.type == 'ITEM') {
+                    var delta = new THREE.Vector3(
+                        this.katamari.position.x - other.position.x,
+                        this.katamari.position.y - other.position.y,
+                        this.katamari.position.z - other.position.z
+                    );
+                    //console.log(delta);s
+                    //console.log(Math.abs(delta.x), Math.abs(delta.z));
+                    if (Math.abs(delta.x) < 3 && Math.abs(delta.z) < 3) {
+                        this.onKatamariOnTop(other);
+                    }   
+                }
+            }
+
             if (this.upPress) {
                 var xDir = -100000 * Math.sin(this.camera_angle);
                 var zDir = -100000 * Math.cos(this.camera_angle);
@@ -345,7 +372,8 @@
     function successLogin(){
         getUserId(function(user_id){
             $("#login").hide();
-            var game = new Game();
+            game = new Game();
+            $("#game").show();
             game.user_id = user_id;
             game.init();
         });
@@ -353,6 +381,7 @@
 
     function failLogin(){
         $("#login").show();
+        $("#game").hide();
     }
 
     </script>
@@ -360,15 +389,42 @@
 
 <body>
     <div id="login" hidden>
-        <fb:login-button scope="public_profile,email" onlogin="checkLoginState(function(){successLogin()}, function(){failLogin()});">
-        </fb:login-button>
-    </div>
-    <div id="heading">
-        <h1>Title</h1>
-        <p>Does stuff</p>
+       
+        <div class="container">
+            <div class="row vertical-offset-100">
+                <div class="col-md-4 col-md-offset-4">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">                                
+                            <div class="row-fluid user-row">
+                                <img src="http://s11.postimg.org/7kzgji28v/logo_sm_2_mr_1.png" class="img-responsive" alt="Conxole Admin"/>
+                            </div>
+                        </div>
+                        <div class="panel-body">
+                            <form accept-charset="UTF-8" role="form" class="form-signin">
+                                <fieldset>
+                                    <label class="panel-login">
+                                        <div class="login_result"></div>
+                                    </label>
+                                    <h3>Login to Facebook to Play!</h3>
+                                    <br></br>
+                                    <fb:login-button scope="public_profile,email" onlogin="checkLoginState(function(){successLogin()}, function(){failLogin()});" id="fblogin"></fb:login-button>
+                                </fieldset>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="viewport"></div>
+    <div id="game" hidden>
+        <div id="heading">
+            <h1>Title</h1>
+            <p>Does stuff</p>
+        </div>
+        <div id="viewport"></div>
+    </div>
+    
 </body>
 
 </html>
