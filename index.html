@@ -158,8 +158,8 @@
     Game.prototype.initKatamari = function() {
         var geometry = new THREE.SphereGeometry( 5, 8, 8 );
         var self = this;
-        console.log(this.user_id);
-        getProPic(this.user_id, function(url) {
+        this.propic_size = 300;
+        getProPic(this.user_id, this.propic_size, function(url) {
                 var katamari_material  = Physijs.createMaterial(
                     new THREE.MeshLambertMaterial({map: self.texture_loader.load(url)}),
                     .8, //high friction
