@@ -100,6 +100,7 @@
 
             // Initial objects
             console.log(this);
+            this.score = 0;
             this.initGround();
             this.initKatamari();
             //this.music = new Audio('/media/songs/katamari_jazz.mp3');
@@ -161,6 +162,7 @@
                 0,
                 zOff
             );
+            this.walls[i].type = 'GROUND';
             this.scene.add( this.walls[i] );
     }
 
@@ -180,6 +182,7 @@
                     20, // z
                     0 // x
                 );
+                self.katamari.type = 'KATAMARI';
                 self.scene.add( self.katamari );
 
             },
@@ -250,6 +253,9 @@
         nk.setAngularVelocity(angvel);
         this.katamari = nk;
 
+        this.score += 100;
+        document.getElementById("score").innerText = this.score;
+
         var self = this;
         n.addEventListener('collision', function(other) {
             //console.log('collide2');
@@ -288,109 +294,122 @@
             this.downPress = false;
     };
 
-        Game.prototype.onPhysicsUpdate = function() {
-            this.scene.simulate(undefined, 1);
-
-            for (var i = 0; i < this.katamari._physijs.touches.length; i++) {
-                var other = this.scene._objects[this.katamari._physijs.touches[i]];
-                if (other.type == 'ITEM') {
-                    var delta = new THREE.Vector3(
-                        this.katamari.position.x - other.position.x,
-                        this.katamari.position.y - other.position.y,
-                        this.katamari.position.z - other.position.z
-                    );
-                    //console.log(delta);s
-                    //console.log(Math.abs(delta.x), Math.abs(delta.z));
-                    if (Math.abs(delta.x) < 3 && Math.abs(delta.z) < 3) {
-                        this.onKatamariOnTop(other);
-                    }   
-                }
-            }
-
-            if (this.upPress) {
-                var xDir = -100000 * Math.sin(this.camera_angle);
-                var zDir = -100000 * Math.cos(this.camera_angle);
-                this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
-            } else if (this.downPress) {
-                var xDir = 100000 * Math.sin(this.camera_angle);
-                var zDir = 100000 * Math.cos(this.camera_angle);
-                this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
-            }
-
-            if (this.leftPress) {
-                this.camera_angle = (this.camera_angle + (Math.PI / 36 / 2));
-            } else if (this.rightPress) {
-                this.camera_angle = (this.camera_angle - (Math.PI / 36 / 2));
-            }
-
-            if (this.katamari.getLinearVelocity().y > 20) {
-                console.log("fix the thing");
-                this.katamari.setLinearVelocity(new THREE.Vector3(
-                    this.katamari.getLinearVelocity().x, 20,
-                    this.katamari.getLinearVelocity().z));
-            }
-            this.physics_stats.update();
-        };
-
-        Game.prototype.render = function() {
-            requestAnimationFrame(this.render.bind(this));
-            this.camera.lookAt(this.katamari.position);
-            var cameraX = 100 * Math.sin(this.camera_angle) + this.katamari.position.x;
-            var cameraZ = 100 * Math.cos(this.camera_angle) + this.katamari.position.z;
-            this.renderer.render(this.scene, this.camera);
-            this.camera.position.set(cameraX, 50, cameraZ);
-            this.render_stats.update();
-        };
-
-        Game.prototype.onKeyDown = function(event) {
-            switch(event.keyCode) {
-                case 65: case 37:
-                    //left arrow
-                    this.leftPress = true;
-                    break;
-                case 68: case 39:
-                    //right arrow
-                    this.rightPress = true;
-                    break;
-                case 87: case 38:
-                    //up arrow
-                    this.upPress = true;
-                    break;
-                case 83: case 40:
-                    //down arrow
-                    this.downPress = true;
-                    break;
-
-                case 13:
-                    // enter
-                    var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
-                    this.spawnItem(this.texture_loader.load(friend_pic));
-                    this.friend_i++;
-                    break;
-            }
-        };
-
-
-        Game.prototype.onKeyUp = function(event) {
-            switch(event.keyCode) {
-                case 65: case 37:
-                    //left arrow
-                    this.leftPress = false;
-                    break;
-                case 68: case 39:
-                    //right arrow
-                    this.rightPress = false;
-                    break;
-                case 87: case 38:
-                    //up arrow
-                    this.upPress = false;
-                    break;
-                case 83: case 40:
-                    //down arrow
-                    this.downPress = false;
-                    break;   
+    Game.prototype.resetGame = function() {
+        console.log(this.scene._objects);
+        for (var currObject in this.scene._objects) {
+            console.log(this.scene._objects[currObject]);
+            if (this.scene._objects[currObject].type != 'GROUND') {
+                console.log("removed");
+                this.scene.remove(this.scene._objects[currObject]);
             }
         }
+        this.score = 0;
+        this.initKatamari();
+    };
+
+    Game.prototype.onPhysicsUpdate = function() {
+        this.scene.simulate(undefined, 1);
+
+        for (var i = 0; i < this.katamari._physijs.touches.length; i++) {
+            var other = this.scene._objects[this.katamari._physijs.touches[i]];
+            if (other.type == 'ITEM') {
+                var delta = new THREE.Vector3(
+                    this.katamari.position.x - other.position.x,
+                    this.katamari.position.y - other.position.y,
+                    this.katamari.position.z - other.position.z
+                );
+                //console.log(delta);s
+                //console.log(Math.abs(delta.x), Math.abs(delta.z));
+                if (Math.abs(delta.x) < 3 && Math.abs(delta.z) < 3) {
+                    this.onKatamariOnTop(other);
+                }   
+            }
+        }
+
+        if (this.upPress) {
+            var xDir = -100000 * Math.sin(this.camera_angle);
+            var zDir = -100000 * Math.cos(this.camera_angle);
+            this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
+        } else if (this.downPress) {
+            var xDir = 100000 * Math.sin(this.camera_angle);
+            var zDir = 100000 * Math.cos(this.camera_angle);
+            this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
+        }
+
+        if (this.leftPress) {
+            this.camera_angle = (this.camera_angle + (Math.PI / 36 / 2));
+        } else if (this.rightPress) {
+            this.camera_angle = (this.camera_angle - (Math.PI / 36 / 2));
+        }
+
+        if (this.katamari.getLinearVelocity().y > 20) {
+            console.log("fix the thing");
+            this.katamari.setLinearVelocity(new THREE.Vector3(
+                this.katamari.getLinearVelocity().x, 20,
+                this.katamari.getLinearVelocity().z));
+        }
+        this.physics_stats.update();
+    };
+
+    Game.prototype.render = function() {
+        requestAnimationFrame(this.render.bind(this));
+        this.camera.lookAt(this.katamari.position);
+        var cameraX = 100 * Math.sin(this.camera_angle) + this.katamari.position.x;
+        var cameraZ = 100 * Math.cos(this.camera_angle) + this.katamari.position.z;
+        this.renderer.render(this.scene, this.camera);
+        this.camera.position.set(cameraX, 50, cameraZ);
+        this.render_stats.update();
+    };
+
+    Game.prototype.onKeyDown = function(event) {
+        switch(event.keyCode) {
+            case 65: case 37:
+                //left arrow
+                this.leftPress = true;
+                break;
+            case 68: case 39:
+                //right arrow
+                this.rightPress = true;
+                break;
+            case 87: case 38:
+                //up arrow
+                this.upPress = true;
+                break;
+            case 83: case 40:
+                //down arrow
+                this.downPress = true;
+                break;
+
+            case 13:
+                // enter
+                var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
+                this.spawnItem(this.texture_loader.load(friend_pic));
+                this.friend_i++;
+                break;
+        }
+    };
+
+
+    Game.prototype.onKeyUp = function(event) {
+        switch(event.keyCode) {
+            case 65: case 37:
+                //left arrow
+                this.leftPress = false;
+                break;
+            case 68: case 39:
+                //right arrow
+                this.rightPress = false;
+                break;
+            case 87: case 38:
+                //up arrow
+                this.upPress = false;
+                break;
+            case 83: case 40:
+                //down arrow
+                this.downPress = false;
+                break;   
+        }
+    }
 
     $(document).ready(function() {
         initLoginStatus(function(){
@@ -410,6 +429,10 @@
                 game.friends = friends;
                 game.friend_i = 0;
                 game.init();
+                document.getElementById("reset").onclick= function(e) {
+                    game.resetGame();
+                    return false;
+                }
             }, function(response){
                 console.log("Friends, error");
             });
@@ -459,6 +482,8 @@
             <h1>Title</h1>
             <p>Does stuff</p>
         </div>
+        <button id="reset">Reset</button>
+        <h1>Score : <span id="score">0</span> </h1>
         <div id="viewport"></div>
     </div>
     
