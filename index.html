@@ -246,6 +246,14 @@
         nk.position.set(katamari.position.x, katamari.position.y, katamari.position.z);
         nk.rotation.set(katamari.rotation.x, katamari.rotation.y, katamari.rotation.z);
 
+        for (var i = 0; i < katamari.children.length; i++) {
+            var c = katamari.children[i];
+            var nchild = new Physijs.BoxMesh(new THREE.BoxGeometry(10, .2, 10), c.material);
+            nchild.position.set(c.position.x, c.position.y, c.position.z);
+            nchild.rotation.set(c.rotation.x, c.rotation.y, c.rotation.z);
+            nk.add(nchild);
+        }
+
         nk.add(n);
         this.scene.add(nk);
 
