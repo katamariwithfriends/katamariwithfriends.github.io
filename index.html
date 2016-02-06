@@ -111,7 +111,7 @@
             ground_material.map.repeat.set( 3, 3 );
             var wall_material = Physijs.createMaterial(
                 new THREE.MeshLambertMaterial({map: this.texture_loader.load('/media/texture/wood_dark.jpg')}),
-                .8, //high friction
+                .2, //low friction
                 .3 //low resolution
             );
             wall_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
