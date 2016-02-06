@@ -109,6 +109,8 @@
             // Init events
             this.initEvents();
 
+            this.initTiles();
+
             // Begin rendering
             var self = this;
             setTimeout(function() {
@@ -150,6 +152,20 @@
             this.scene.add( this.ground );
             this.ground.type = 'GROUND'; 
     };
+
+    Game.prototype.initTiles = function() {
+        for (var i = 0; i < 10; i++) {
+            var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
+            this.spawnItem(this.texture_loader.load(friend_pic));
+            this.friend_i++;
+        }
+    }
+
+    Game.prototype.addFriend = function() {
+        var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
+        this.spawnItem(this.texture_loader.load(friend_pic));
+        this.friend_i++;
+    }
 
     Game.prototype.initWall = function(xWidth, zWidth, xOff, zOff, i, wall_material) {
             this.walls[i] = new Physijs.BoxMesh(
@@ -255,6 +271,7 @@
 
         this.score += 100;
         document.getElementById("score").innerText = this.score;
+        this.addFriend();
 
         var self = this;
         n.addEventListener('collision', function(other) {
@@ -306,6 +323,7 @@
         this.score = 0;
         document.getElementById("score").innerText = "";
         this.initKatamari();
+        initTiles();
     };
 
     Game.prototype.onPhysicsUpdate = function() {
@@ -383,9 +401,9 @@
 
             case 13:
                 // enter
-                var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
-                this.spawnItem(this.texture_loader.load(friend_pic));
-                this.friend_i++;
+                //var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
+                //this.spawnItem(this.texture_loader.load(friend_pic));
+                //this.friend_i++;
                 break;
             case 27:
                 postWall(this.user_id, function(response){
