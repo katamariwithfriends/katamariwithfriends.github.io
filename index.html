@@ -398,7 +398,7 @@
     function successLogin(){
         getUserId(function(user_id){
             $("#login").hide();
-            getFriends(user_id, 100, function(friends){
+            getFriends(user_id, 120, function(friends){
                 game = new Game();
                 $("#game").show();
                 game.user_id = user_id;
