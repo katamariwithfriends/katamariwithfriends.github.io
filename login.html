@@ -65,6 +65,7 @@
 
   };
 
+  var use_id = 0;
   // Load the SDK asynchronously
   (function(d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
@@ -79,10 +80,48 @@
   function testAPI() {
     console.log('Welcome!  Fetching your information.... ');
     FB.api('/me', function(response) {
+      user_id = response["id"];
       console.log('Successful login for: ' + response.name);
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
-    });
+      getFriends(user_id, 5);
+    }, {scope: 'user_about_me,user_friends,user_photos,user_relationships'});
+    
+  }
+
+  function getFriends(id, limit){
+    url = "/" + id + "/invitable_friends?limit="+ limit + "&";
+    FB.api(
+        url,
+        function (response) {
+          if (response && !response.error) {
+            console.log("Getting Friends");
+            console.log(response);
+            friends = response["data"];
+            $("#friends").html(JSON.stringify(friends));
+            generateProfiles(friends)
+          } else {
+            console.log("Error");
+            console.log(response);
+          }
+        }
+    );
+  }
+
+  function generateProfiles(friends){
+    var friend_div = $("#friends");
+    var list = $(document.createElement('ul'));
+    for(i in friends){
+      console.log(friends[i]["name"])
+      var list_item = $(document.createElement('li'));
+      var image = $(document.createElement('img'));
+      image.attr("src", friends[i]["picture"]["data"]["url"]);
+
+      list_item.append(friends[i]["name"]);
+      list_item.append(image);
+      list.append(list_item);
+    }
+    friend_div.append(list);
   }
 </script>
 
@@ -96,6 +135,9 @@
 </fb:login-button>
 
 <div id="status">
+</div>
+
+<div id="friends">
 </div>
 
 </body>
