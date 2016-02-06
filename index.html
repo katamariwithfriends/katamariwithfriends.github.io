@@ -252,6 +252,12 @@
             nchild.position.set(c.position.x, c.position.y, c.position.z);
             nchild.rotation.set(c.rotation.x, c.rotation.y, c.rotation.z);
             nk.add(nchild);
+            var self = this;
+            nchild.addEventListener('collision', function(other) {
+            if (other.type == 'ITEM') {
+                self.onKatamariOnTop(other);
+                }
+            });
         }
 
         nk.add(n);
@@ -261,6 +267,13 @@
         nk.setAngularVelocity(angvel);
 
         this.katamari = nk;
+
+        var self = this;
+        n.addEventListener('collision', function(other) {
+            if (other.type == 'ITEM') {
+                self.onKatamariOnTop(other);
+            }
+        });
 
     };
 
