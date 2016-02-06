@@ -134,7 +134,7 @@
                 .3 //low resolution
             );
             wall_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
-            wall_material.map.repeat.set( 3, 3 );
+            wall_material.map.repeat.set( 10, 1 );
             this.walls = new Array(4)
             this.initWall(this.worldWidth, 1, 0, this.worldLength / 2, 1, wall_material);
             this.initWall(this.worldWidth, 1, 0, -1 * this.worldLength / 2, 2, wall_material);
@@ -265,8 +265,8 @@
 
         nk.setLinearVelocity(linvel);
         nk.setAngularVelocity(angvel);
-
         this.katamari = nk;
+        this.katamari.position.y = (this.katamari.position.y + 3)
 
         var self = this;
         n.addEventListener('collision', function(other) {
