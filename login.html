@@ -83,6 +83,19 @@
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
     });
+    FB.api(
+        "/949953021709320/invitable_friends",
+        function (response) {
+          if (response && !response.error) {
+            console.log("Getting Friends");
+            console.log(response);
+            $("#friends").html(JSON.stringify(response));
+          } else {
+            console.log("Error");
+            console.log(response);
+          }
+        }
+    );
   }
 </script>
 
@@ -96,6 +109,9 @@
 </fb:login-button>
 
 <div id="status">
+</div>
+
+<div id="friends">
 </div>
 
 </body>
