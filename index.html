@@ -85,18 +85,44 @@
 
             // Initial objects
             console.log(this);
+            this.initWorldMap();
             this.initGround();
             this.initKatamari();
             this.music = new Audio('/media/songs/katamari_jazz.mp3');
-            this.music.play();
+            //this.music.play();
 
             // Init events
             this.initEvents();
+
+            this.initWorldMap();
 
             // Begin rendering
             requestAnimationFrame(this.render.bind(this));
             this.scene.simulate();            
     };
+
+    Game.prototype.initWorldMap = function() {
+        console.log("ayy");
+        var urls = [
+          '/media/texture/katamari.jpg', //pos x
+          '/media/texture/katamari.jpg', //neg x
+          '/media/texture/katamari.jpg', //pos y
+          '/media/texture/katamari.jpg', //neg y
+          '/media/texture/katamari.jpg', //pos z
+          '/media/texture/katamari.jpg' //neg z
+        ],
+
+        // wrap it up into the object that we need
+        cubemap = THREE.ImageUtils.loadTextureCube(urls);
+
+        // set the format, likely RGB unless you've gone crazy
+        cubemap.format = THREE.RGBFormat;
+
+        var material = new THREE.MeshLambertMaterial({
+          color: 0xffffff,
+          envMap: cubemap
+        });
+    }
 
     Game.prototype.initGround = function() {
             this.worldWidth = 200;
