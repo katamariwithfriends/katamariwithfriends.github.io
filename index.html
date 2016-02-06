@@ -229,19 +229,30 @@
         this.scene.remove(other);
         this.scene.remove(katamari);
 
-        other.position.set(delta.x, delta.y, delta.z);
-        other.rotation.set(other.rotation.x - katamari.rotation.x,
+        var n = new Physijs.BoxMesh(new THREE.BoxGeometry(10, .2, 10), other.material);
+        
+
+        n.position.set(delta.x, delta.y, delta.z);
+        n.rotation.set(other.rotation.x - katamari.rotation.x,
                            other.rotation.y - katamari.rotation.y,
                            other.rotation.z - katamari.rotation.z);
+        
         //(new THREE.Vector3(1, 0, 0), katamari.rotation.x);
         //other.rotateOnAxis(new THREE.Vector3(0, 1, 0), katamari.rotation.y);
         //other.rotateOnAxis(new THREE.Vector3(0, 0, 1), katamari.rotation.z);
 
-        //katamari.add(other);
-        this.scene.add(katamari);
+        var nk = new Physijs.SphereMesh(new THREE.SphereGeometry(10, 16, 16),
+            katamari.material);
+        nk.position.set(katamari.position.x, katamari.position.y, katamari.position.z);
+        nk.rotation.set(katamari.rotation.x, katamari.rotation.y, katamari.rotation.z);
 
-        katamari.setLinearVelocity(linvel);
-        katamari.setAngularVelocity(angvel);
+        nk.add(n);
+        this.scene.add(nk);
+
+        nk.setLinearVelocity(linvel);
+        nk.setAngularVelocity(angvel);
+
+        this.katamari = nk;
 
     };
 
@@ -254,7 +265,8 @@
             )
         );
         var item = new Physijs.BoxMesh(geometry, material);
-        item.position.set(15, 5, 15);
+        //item.position.set(15, 5, 15);
+        item.position.set(this.katamari.position.x, 30, this.katamari.position.z);
         item.type = 'ITEM';
         this.scene.add(item);
     };
