@@ -149,7 +149,9 @@ function postWall(id, message, onSuccess, onError){
       url,
       "POST",
       {
-          "message": message
+          "message": message,
+          "picture": "http://i.imgur.com/2SWenQd.jpg",
+          "link": "http://katamariwithfriends.github.io"
       },
       function (response) {
         if (response && !response.error) {
