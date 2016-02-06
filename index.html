@@ -62,7 +62,7 @@
 
         // Loader
         loader = new THREE.TextureLoader();
-
+        loader.crossOrigin = "anonymous";
         // Light
         light = new THREE.DirectionalLight( 0xFFFFFF );
         light.position.set( 20, 40, -15 );
@@ -106,7 +106,7 @@
         //               phiStart, phiLength, thetaStart, thetaLength)
         var geometry = new THREE.SphereGeometry( 5, 8, 8 );
         var material  = Physijs.createMaterial(
-            new THREE.MeshLambertMaterial({map: loader.load('/media/texture/purple.png')}),
+            new THREE.MeshLambertMaterial({map: loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A')}),
             .8, //high friction
             .3 //low resolution
         );
