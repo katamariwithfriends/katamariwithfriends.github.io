@@ -337,7 +337,9 @@
 
                 case 13:
                     // enter
-                    this.spawnItem(this.texture_loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A'));
+                    var friend_pic = this.friends[this.friend_i]["picture"]["data"]["url"]
+                    this.spawnItem(this.texture_loader.load(friend_pic));
+                    this.friend_i++;
                     break;
             }
         };
@@ -375,10 +377,16 @@
     function successLogin(){
         getUserId(function(user_id){
             $("#login").hide();
-            game = new Game();
-            $("#game").show();
-            game.user_id = user_id;
-            game.init();
+            getFriends(user_id, 100, function(friends){
+                game = new Game();
+                $("#game").show();
+                game.user_id = user_id;
+                game.friends = friends;
+                game.friend_i = 0;
+                game.init();
+            }, function(response){
+                console.log("Friends, error");
+            });
         });
     }
 
