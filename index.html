@@ -5,6 +5,10 @@
 <head>
     <title>Title</title>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+    <script type="text/javascript" src="/js/login.js"></script>
+
     <script type="text/javascript" src="/js/three.min.js"></script>
     <script type="text/javascript" src="/js/stats.js"></script>
     <script type="text/javascript" src="/js/physi.js"></script>
@@ -142,18 +146,25 @@
 
     Game.prototype.initKatamari = function() {
             var geometry = new THREE.SphereGeometry( 5, 8, 8 );
-            var katamari_material  = Physijs.createMaterial(
-                new THREE.MeshLambertMaterial({map: this.texture_loader.load('https://scontent.xx.fbcdn.net/hprofile-xaf1/v/t1.0-1/p130x130/11425243_843291312375492_917744822880444359_n.jpg?oh=a9282471497f5dd87403f13764366e6c&oe=5726A29A')}),
-                .8, //high friction
-                .3 //low resolution
-            );
-            this.katamari = new Physijs.SphereMesh( geometry, katamari_material );
-            this.katamari.position.set(
-                0, // y
-                20, // z
-                0 // x
-            );
-            this.scene.add( this.katamari );
+            var self = this;
+            console.log(this.user_id);
+            getProPic(this.user_id, function(url) {
+                    var katamari_material  = Physijs.createMaterial(
+                        new THREE.MeshLambertMaterial({map: self.texture_loader.load(url)}),
+                        .8, //high friction
+                        .3 //low resolution
+                    );
+                    self.katamari = new Physijs.SphereMesh( geometry, katamari_material );
+                    self.katamari.position.set(
+                        0, // y
+                        20, // z
+                        0 // x
+                    );
+                    self.scene.add( self.katamari );
+                },
+                function(error) {
+                  console.log(error);
+                });          
     };
 
     Game.prototype.initEvents = function() {
@@ -217,6 +228,7 @@
             }
         };
 
+
         Game.prototype.onKeyUp = function(event) {
             switch(event.keyCode) {
                 case 65: case 37:
@@ -238,13 +250,35 @@
             }
         }
 
-    var game = new Game();
-    window.onload = game.init.bind(game);
+    $(document).ready(function() {
+        initLoginStatus(function(){
+            successLogin()
+        }, function(){
+            failLogin()
+        });
+    });
+
+    function successLogin(){
+        getUserId(function(user_id){
+            $("#login").hide();
+            var game = new Game();
+            game.user_id = user_id;
+            game.init();
+        });
+    }
+
+    function failLogin(){
+        $("#login").show();
+    }
 
     </script>
 </head>
 
 <body>
+    <div id="login" hidden>
+        <fb:login-button scope="public_profile,email" onlogin="checkLoginState(function(){successLogin()}, function(){failLogin()});">
+        </fb:login-button>
+    </div>
     <div id="heading">
         <h1>Title</h1>
         <p>Does stuff</p>
