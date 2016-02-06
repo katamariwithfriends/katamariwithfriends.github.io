@@ -56,6 +56,7 @@
             );
             this.camera.position.set( 60, 50, 60 );
             this.camera.lookAt( this.scene.position );
+            this.camera_angle = 0;
             this.scene.add( this.camera );
 
             // Init texture Loader
@@ -137,24 +138,35 @@
 
         Game.prototype.render = function() {
             requestAnimationFrame(this.render.bind(this));
+            this.camera.lookAt(this.katamari.position);
+            var cameraX = 100 * Math.sin(this.camera_angle) + this.katamari.position.x;
+            var cameraZ = 100 * Math.cos(this.camera_angle) + this.katamari.position.z;
             this.renderer.render(this.scene, this.camera);
+            this.camera.position.set(cameraX, 50, cameraZ);
             this.render_stats.update();
         };
 
         Game.prototype.onKeyPress = function(event) {
             switch(event.keyCode) {
                 case 65: case 37:
-                    console.log('left');
-                    this.katamari.applyCentralImpulse(new THREE.Vector3(-100, 0, 0));
+                    //left arrow
+                    this.camera_angle = (this.camera_angle + (Math.PI / 36));
                     break;
                 case 68: case 39:
-                    console.log('right');
+                    //right arrow
+                    this.camera_angle = (this.camera_angle - (Math.PI / 36));
                     break;
                 case 87: case 38:
-                    console.log('up');
+                    //up arrow
+                    var xDir = -200 * Math.sin(this.camera_angle);
+                    var zDir = -200 * Math.cos(this.camera_angle);
+                    this.katamari.applyCentralImpulse(new THREE.Vector3(xDir, 0, zDir));
                     break;
                 case 83: case 40:
-                    console.log('down');
+                    //down arrow
+                    var xDir = 200 * Math.sin(this.camera_angle);
+                    var zDir = 200 * Math.cos(this.camera_angle);
+                    this.katamari.applyCentralImpulse(new THREE.Vector3(xDir, 0, zDir));
                     break;
             }
         };
