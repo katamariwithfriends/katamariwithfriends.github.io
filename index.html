@@ -118,8 +118,8 @@
     };
 
     Game.prototype.initGround = function() {
-            this.worldWidth = 200;
-            this.worldLength = 200;
+            this.worldWidth = 300;
+            this.worldLength = 300;
             var ground_material = Physijs.createMaterial(
                 new THREE.MeshLambertMaterial({map: this.texture_loader.load('/media/texture/grass_dark.jpg')}),
                 .8, //high friction
@@ -254,7 +254,12 @@
             )
         );
         var item = new Physijs.BoxMesh(geometry, material);
-        item.position.set(15, 5, 15);
+        // item.position.set(Math.random()*this.worldWidth, 5, 
+        //                   Math.random()*this.worldLength);
+        var item_x = (-1 * this.worldWidth/2+10) + Math.random()*(this.worldWidth-20)
+        var item_z = (-1 * this.worldLength/2+10) + Math.random()*(this.worldLength-20)
+        item.position.set(item_x, 2, 
+                          item_z);
         item.type = 'ITEM';
         this.scene.add(item);
     };
