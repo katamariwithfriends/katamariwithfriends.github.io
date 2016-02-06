@@ -83,7 +83,8 @@
             console.log(this);
             this.initGround();
             this.initKatamari();
-            new Audio('/media/songs/katamari_jazz.mp3').play()
+            this.music = new Audio('/media/songs/katamari_jazz.mp3');
+            this.music.play();
 
             // Init events
             this.initEvents();
@@ -94,22 +95,50 @@
     };
 
     Game.prototype.initGround = function() {
+            this.worldWidth = 200;
+            this.worldLength = 200;
             var ground_material = Physijs.createMaterial(
                 new THREE.MeshLambertMaterial({map: this.texture_loader.load('/media/texture/grass_dark.jpg')}),
                 .8, //high friction
                 .3 //low resolution
             );
+            //TODO: why does the wall texture not show up properly
             ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
             ground_material.map.repeat.set( 3, 3 );
-
+            var wall_material = Physijs.createMaterial(
+                new THREE.MeshLambertMaterial({map: this.texture_loader.load('/media/texture/wood_dark.jpg')}),
+                .8, //high friction
+                .3 //low resolution
+            );
+            wall_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
+            wall_material.map.repeat.set( 3, 3 );
+            this.walls = new Array(4)
+            this.initWall(this.worldWidth, 1, 0, this.worldLength / 2, 1, wall_material);
+            this.initWall(this.worldWidth, 1, 0, -1 * this.worldLength / 2, 2, wall_material);
+            this.initWall(1, this.worldLength, this.worldWidth / 2, 0, 3, wall_material);
+            this.initWall(1, this.worldLength, -1 * this.worldWidth / 2, 0, 4, wall_material);
             this.ground = new Physijs.BoxMesh(
-                new THREE.BoxGeometry(100,1,100),
+                new THREE.BoxGeometry(this.worldWidth,1,this.worldLength),
                 ground_material,
                 0 //mass, makes object immovable
             );
             this.ground.recieveShadow = true;
             this.scene.add( this.ground ); 
     };
+
+    Game.prototype.initWall = function(xWidth, zWidth, xOff, zOff, i, wall_material) {
+            this.walls[i] = new Physijs.BoxMesh(
+                new THREE.BoxGeometry(xWidth,40,zWidth),
+                wall_material,
+                0 //makes wall immovable
+            );
+            this.walls[i].position.set(
+                xOff,
+                0,
+                zOff
+            );
+            this.scene.add( this.walls[i] );
+    }
 
     Game.prototype.initKatamari = function() {
             var geometry = new THREE.SphereGeometry( 5, 8, 8 );
