@@ -304,6 +304,7 @@
             }
         }
         this.score = 0;
+        document.getElementById("score").innerText = "";
         this.initKatamari();
     };
 
@@ -487,11 +488,11 @@
 
     <div id="game" hidden>
         <div id="heading">
-            <h1>Title</h1>
-            <p>Does stuff</p>
+            <h1>Katamari with Friends!</h1>
+            <p>Press the Enter key to spawn more friends, and roll them up with WASD!</p>
         </div>
         <button id="reset">Reset</button>
-        <h1>Score : <span id="score">0</span> </h1>
+        <h1>Score : <span id="score"></span> </h1>
         <div id="viewport"></div>
     </div>
     
