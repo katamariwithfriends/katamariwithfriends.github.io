@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+    <title>Title</title>
+
+    <script type="text/javascript" src="/js/three.min.js"></script>
+    <script type="text/javascript" src="/js/stats.js"></script>
+    <script type="text/javascript" src="/js/physi.js"></script>
+
+    <script type="text/javascript">
+    'use strict';
+
+    Physijs.scripts.worker = '/js/physijs_worker.js';
+    Physijs.scripts.ammo = '/js/ammo.js';    
+
+    var renderer, render_stats, physics_stats;
+    var scene, camera, render, ground_material, ground, loader, light;
+
+    // functions
+    var initScene;
+
+    initScene = function() {
+        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMapSoft = true;
+        document.getElementById('viewport').appendChild(renderer.domElement);
+
+        render_stats = new Stats();
+        render_stats.domElement.style.position = 'absolute';
+        render_stats.domElement.style.top = '0px;';
+        render_stats.domElement.style.zIndex = 100;
+        document.getElementById('viewport').appendChild(render_stats.domElement);
+
+        physics_stats = new Stats();
+        physics_stats.domElement.style.position = 'absolute';
+        physics_stats.domElement.style.top = '50px;';
+        physics_stats.domElement.style.zIndex = 100;
+        document.getElementById('viewport').appendChild(physics_stats.domElement);
+        
+        scene = new Physijs.Scene;
+        scene.addEventListener(
+            'update',
+            function() { //main loop physics engine
+                scene.simulate(undefined, 1);
+                physics_stats.update();
+            }
+        );
+
+        camera = new THREE.PerspectiveCamera(
+            35,
+            window.innerWidth / window.innerHeight,
+            1,
+            1000
+        );
+        camera.position.set( 60, 50, 60 );
+        camera.lookAt( scene.position );
+        scene.add( camera );
+
+        // Loader
+        loader = new THREE.TextureLoader();
+
+        // Light
+        light = new THREE.DirectionalLight( 0xFFFFFF );
+        light.position.set( 20, 40, -15 );
+        light.target.position.copy( scene.position );
+        light.castShadow = true;
+        light.shadowCameraLeft = -60;
+        light.shadowCameraTop = -60;
+        light.shadowCameraRight = 60;
+        light.shadowCameraBottom = 60;
+        light.shadowCameraNear = 20;
+        light.shadowCameraFar = 200;
+        light.shadowBias = -.0001
+        light.shadowMapWidth = light.shadowMapHeight = 2048;
+        light.shadowDarkness = .7;
+        scene.add( light );
+
+        ground_material = Physijs.createMaterial(
+            new THREE.MeshLambertMaterial({map: loader.load('/media/texture/grass_dark.jpg')}),
+            .8, //high friction
+            .3 //low resolution
+        );
+        ground_material.map.wrapS = ground_material.map.wrapT = THREE.RepeatWrapping;
+        ground_material.map.repeat.set( 3, 3 );
+
+        ground = new Physijs.BoxMesh(
+            new THREE.BoxGeometry(100,1,100),
+            ground_material,
+            0 //mass, makes object immovable
+        );
+        ground.recieveShadow = true;
+        scene.add( ground );
+
+        requestAnimationFrame(render);
+        scene.simulate();
+    };
+
+    render = function() {
+        requestAnimationFrame(render);
+        renderer.render(scene, camera);
+        render_stats.update();
+    };
+
+    window.onload = initScene;
+
+    </script>
+</head>
+
+<body>
+    <div id="heading">
+        <h1>Title</h1>
+        <p>Does stuff</p>
+    </div>
+
+    <div id="viewport"></div>
+</body>
+
+</html>
