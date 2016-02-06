@@ -105,8 +105,8 @@
             this.score = 0;
             this.initGround();
             this.initKatamari();
-            //this.music = new Audio('/media/songs/katamari_jazz.mp3');
-            //this.music.play();
+            this.music = new Audio('/media/songs/katamari_jazz.mp3');
+            this.music.play();
 
             // Init events
             this.initEvents();
@@ -348,12 +348,12 @@
         }
 
         if (this.upPress) {
-            var xDir = -100000 * Math.sin(this.camera_angle);
-            var zDir = -100000 * Math.cos(this.camera_angle);
+            var xDir = -200000 * Math.sin(this.camera_angle);
+            var zDir = -200000 * Math.cos(this.camera_angle);
             this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
         } else if (this.downPress) {
-            var xDir = 100000 * Math.sin(this.camera_angle);
-            var zDir = 100000 * Math.cos(this.camera_angle);
+            var xDir = 200000 * Math.sin(this.camera_angle);
+            var zDir = 200000 * Math.cos(this.camera_angle);
             this.katamari.applyCentralForce(new THREE.Vector3(xDir, 0, zDir));
         }
 
