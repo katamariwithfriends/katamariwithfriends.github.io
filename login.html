@@ -83,19 +83,42 @@
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
     });
+    getFriends(949953021709320, 5);
+  }
+
+  function getFriends(id, limit){
+    url = "/" + id + "/invitable_friends?limit="+ limit + "&";
     FB.api(
-        "/949953021709320/invitable_friends",
+        url,
         function (response) {
           if (response && !response.error) {
             console.log("Getting Friends");
             console.log(response);
-            $("#friends").html(JSON.stringify(response));
+            friends = response["data"];
+            $("#friends").html(JSON.stringify(friends));
+            generateProfiles(friends)
           } else {
             console.log("Error");
             console.log(response);
           }
         }
     );
+  }
+
+  function generateProfiles(friends){
+    var friend_div = $("#friends");
+    var list = $(document.createElement('ul'));
+    for(i in friends){
+      console.log(friends[i]["name"])
+      var list_item = $(document.createElement('li'));
+      var image = $(document.createElement('img'));
+      image.attr("src", friends[i]["picture"]["data"]["url"]);
+
+      list_item.append(friends[i]["name"]);
+      list_item.append(image);
+      list.append(list_item);
+    }
+    friend_div.append(list);
   }
 </script>
 
