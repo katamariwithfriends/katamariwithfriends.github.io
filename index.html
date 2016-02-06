@@ -19,7 +19,7 @@
     var scene, camera, render, ground_material, ground, loader, light;
 
     // functions
-    var initScene;
+    var initScene, spawnKatamari;
 
     initScene = function() {
         renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -41,6 +41,7 @@
         document.getElementById('viewport').appendChild(physics_stats.domElement);
         
         scene = new Physijs.Scene;
+        scene.setGravity(new THREE.Vector3( 0, -30, 0 ));
         scene.addEventListener(
             'update',
             function() { //main loop physics engine
@@ -94,9 +95,58 @@
         ground.recieveShadow = true;
         scene.add( ground );
 
+        spawnKatamari();
+
         requestAnimationFrame(render);
         scene.simulate();
     };
+
+    spawnKatamari = function() {
+        //SphereGeometry(radius, widthSegments, heightSegments, 
+        //               phiStart, phiLength, thetaStart, thetaLength)
+        var geometry = new THREE.SphereGeometry( 5, 32, 32 ),
+            handleCollision = function( collided_with, linearVelocity, angularVelocity ) {
+                switch ( ++this.collisions ) {
+                    
+                    case 1:
+                        this.material.color.setHex(0xcc8855);
+                        break;
+                    
+                    case 2:
+                        this.material.color.setHex(0xbb9955);
+                        break;
+                    
+                    case 3:
+                        this.material.color.setHex(0xaaaa55);
+                        break;
+                    
+                    case 4:
+                        this.material.color.setHex(0x99bb55);
+                        break;
+                    
+                    case 5:
+                        this.material.color.setHex(0x88cc55);
+                        break;
+                    
+                    case 6:
+                        this.material.color.setHex(0x77dd55);
+                        break;
+                }
+            };
+        var material  = Physijs.createMaterial(
+            new THREE.MeshLambertMaterial({map: loader.load('/media/texture/purple.png')}),
+            .8, //high friction
+            .3 //low resolution
+        );
+        var sphere = new Physijs.BoxMesh( geometry, material );
+        sphere.addEventListener( 'collision', handleCollision );
+        sphere.position.set(
+            0, // y
+            20, // z
+            0 // x
+        );
+        scene.add( sphere );
+    }
 
     render = function() {
         requestAnimationFrame(render);
