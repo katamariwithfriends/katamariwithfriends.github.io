@@ -35,12 +35,13 @@
             // Init renderer 
             this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
             this.renderer.setClearColor( 0xffffff, 0);
-            this.renderer.setSize(window.innerWidth, window.innerHeight);
+            this.renderer.setSize(window.innerWidth - 100, window.innerHeight);
             this.renderer.shadowMap.enabled = true;
             this.renderer.shadowMapSoft = true;
             document.getElementById('viewport').appendChild(this.renderer.domElement);
 
             // Init Stats
+            /*
             this.render_stats = new Stats();
             this.render_stats.domElement.style.position = 'absolute';
             this.render_stats.domElement.style.top = '0px;';
@@ -51,6 +52,7 @@
             this.physics_stats.domElement.style.top = '50px;';
             this.physics_stats.domElement.style.zIndex = 100;
             document.getElementById('viewport').appendChild(this.physics_stats.domElement);
+            */
 
             // Init physics
             this.scene = new Physijs.Scene;
@@ -63,7 +65,7 @@
             // Init camera
             this.camera = new THREE.PerspectiveCamera(
                 35,
-                window.innerWidth / window.innerHeight,
+                (window.innerWidth - 100) / window.innerHeight,
                 1,
                 1000
             );
@@ -349,7 +351,7 @@
                 this.katamari.getLinearVelocity().x, 20,
                 this.katamari.getLinearVelocity().z));
         }
-        this.physics_stats.update();
+        //this.physics_stats.update();
     };
 
     Game.prototype.render = function() {
@@ -359,7 +361,7 @@
         var cameraZ = 100 * Math.cos(this.camera_angle) + this.katamari.position.z;
         this.renderer.render(this.scene, this.camera);
         this.camera.position.set(cameraX, 50, cameraZ);
-        this.render_stats.update();
+        //this.render_stats.update();
     };
 
     Game.prototype.onKeyDown = function(event) {
@@ -493,7 +495,7 @@
         </div>
         <button id="reset">Reset</button>
         <h1>Score : <span id="score"></span> </h1>
-        <div id="viewport"></div>
+        <div id="viewport" style="margin: 10px 50px;"></div>
     </div>
     
 </body>
