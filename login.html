@@ -88,9 +88,32 @@
       console.log('Successful login for: ' + response.name);
       document.getElementById('status').innerHTML =
         'Thanks for logging in, ' + response.name + '!';
+      getProPic(user_id);
       getFriends(user_id, 5);
     }, {scope: 'user_about_me,user_friends,user_photos,user_relationships'});
     
+  }
+
+  function getProPic(id){
+   url = "/" + id + "/picture?height=200&width=200&";
+    FB.api(
+        url,
+        function (response) {
+          if (response && !response.error) {
+            console.log("Getting Friends");
+            console.log(response);
+            picture = response["data"]["url"];
+
+            var propic_div = $("#propic");
+            var image = $(document.createElement('img'));
+            image.attr("src", picture);
+            propic_div.append(image);
+          } else {
+            console.log("Error");
+            console.log(response);
+          }
+        }
+    );
   }
 
   function getFriends(id, limit){
@@ -140,6 +163,8 @@
 
 <div id="status">
 </div>
+
+<div id="propic"></div>
 
 <div id="friends">
 </div>
